@@ -20,7 +20,7 @@ pub fn app() -> Html {
     html! {
         <div>
             <h2 class={"heading"}>{"Vimeon"}</h2>
-            <EditorLines />
+            <EditorView />
         </div>
     }
 }
@@ -29,31 +29,33 @@ pub enum Msg {
     Keydown(String),
 }
 
-pub struct EditorLines {
+pub struct EditorView {
     lines: Vec<String>,
     keydown_listener: Option<EventListener>,
+    current_row: usize,
 }
 
-#[derive(Clone, PartialEq, Properties)]
-pub struct EditorLineProps {
-    lines: Vec<String>,
-}
-
-impl Component for EditorLines {
+impl Component for EditorView {
     type Message = Msg;
     type Properties = ();
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
             keydown_listener: None,
-            lines: vec![],
+            lines: vec![String::from("")],
+            current_row: 0,
         }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::Keydown(key) => {
-                self.lines.push(key);
+                if key == "Enter" {
+                  self.current_row = self.current_row + 1;
+                  self.lines.push(String::from(""));
+                } else {
+                  self.lines[self.current_row] = format!("{}{}", self.lines[self.current_row], key);
+                }
                 true
             }
         }
